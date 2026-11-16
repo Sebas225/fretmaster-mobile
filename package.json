@@ -1,0 +1,25 @@
+{
+  "name": "fretmaster-keys-studio-mobile",
+  "version": "1.0.0",
+  "description": "Aplicación móvil multiplataforma (Android e iOS) sobre Capacitor 6 + PWA Offline",
+  "license": "MIT",
+  "scripts": {
+    "serve": "npx serve www -l 8080",
+    "cap:init-android": "npx cap add android && npx @capacitor/assets generate --android && npx cap sync android",
+    "cap:init-ios": "npx cap add ios && npx @capacitor/assets generate --ios && npx cap sync ios",
+    "cap:sync": "npx cap sync",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/ios": "^6.1.2",
+    "@capacitor/splash-screen": "^6.0.2",
+    "@capacitor/status-bar": "^6.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.1.2"
+  }
+}

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>FretMaster &amp; Keys Studio</title>
+  <meta name="theme-color" content="#090d16" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FretMaster" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="./icons/icon-180.png" />
+  <link rel="stylesheet" href="./styles/utilities.css" />
+  <link rel="stylesheet" href="./styles/tokens-and-theme.css" />
+</head>
+<body class="text-slate-100 antialiased selection:bg-amber-500/30 selection:text-amber-200">
+  <div class="app-safe-shell max-w-[1440px] mx-auto px-3 sm:px-5 py-3 sm:py-5 space-y-3.5">
+
+    <!-- HEADER BAR -->
+    <header class="bg-slate-900/90 backdrop-blur border border-slate-800 rounded-2xl p-3 sm:px-5 sm:py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 shadow-xl">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-600 flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0">
+            <svg class="w-6 h-6 text-slate-950" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18V5l12-2v13" />
+              <circle cx="6" cy="18" r="3" />
+              <circle cx="18" cy="16" r="3" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white leading-tight">FretMaster &amp; Keys Studio</h1>
+            <p class="text-xs text-slate-400">22 trastes · EADGBE · Acordes, Pentatónicas y Detector en Vivo</p>
+          </div>
+        </div>
+
+        <!-- Mobile Mute Quick Toggle -->
+        <button id="btnMuteMobile" type="button" class="lg:hidden pill-btn px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+          <span id="muteIconMobile">🔊</span>
+          <span id="muteTextMobile">Audio</span>
+        </button>
+      </div>
+
+      <!-- Global Switches: Instrument + Dot Label + Audio -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <!-- Instrument Selector -->
+        <div class="flex items-center bg-slate-950/90 p-1 rounded-xl border border-slate-800 w-full sm:w-auto justify-between sm:justify-start" role="group" aria-label="Selector de instrumento">
+          <button type="button" data-instrument="guitar" class="inst-btn pill-btn flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-amber-500 text-slate-950 shadow">
+            🎸 Guitarra
+          </button>
+          <button type="button" data-instrument="piano" class="inst-btn pill-btn flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white">
+            🎹 Piano
+          </button>
+          <button type="button" data-instrument="both" class="inst-btn pill-btn flex-1 sm:flex-initial px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-slate-300 hover:text-white">
+            ⚡ Ambos
+          </button>
+        </div>
+
+        <!-- Label Display Mode Switch (Notas / Intervalos / Dedos) -->
+        <div class="flex items-center bg-slate-950/90 p-1 rounded-xl border border-slate-800 w-full sm:w-auto justify-between sm:justify-start" role="group" aria-label="Etiquetas en los puntos">
+          <button type="button" data-labelmode="note" class="labelmode-btn pill-btn flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 text-slate-950 shadow">
+            Notas (C, D, E)
+          </button>
+          <button type="button" data-labelmode="interval" class="labelmode-btn pill-btn flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white">
+            Intervalos (1, 3, 5)
+          </button>
+          <button type="button" data-labelmode="finger" class="labelmode-btn pill-btn flex-1 sm:flex-initial px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white">
+            Dedos (1–4)
+          </button>
+        </div>
+
+        <!-- Accidental Toggle (# / b) -->
+        <button id="btnAccidental" type="button" class="pill-btn px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200 mono" title="Alternar entre sostenidos (#) y bemoles (b)">
+          ♯ / ♭: Auto
+        </button>
+
+        <!-- Desktop Audio Controls -->
+        <div class="hidden lg:flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800">
+          <button id="btnMuteDesktop" type="button" class="pill-btn text-xs font-semibold text-slate-200 hover:text-amber-400 flex items-center gap-1">
+            <span id="muteIconDesktop">🔊</span>
+          </button>
+          <input id="volumeSlider" type="range" min="0" max="100" value="75" aria-label="Volumen" class="w-20 accent-amber-500 cursor-pointer h-1.5 bg-slate-700 rounded-lg" />
+        </div>
+      </div>
+    </header>
+
+    <!-- MODE TABS + LIVE HARMONIC DETECTOR BANNER -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-3.5 items-stretch">
+      <!-- Mode Selector Tabs -->
+      <div class="xl:col-span-5 bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 flex flex-col justify-between gap-2 shadow-lg">
+        <div class="grid grid-cols-3 gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800/80">
+          <button type="button" data-mode="chords" class="mode-btn pill-btn py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow text-center">
+            Acordes y Voicings
+          </button>
+          <button type="button" data-mode="scales" class="mode-btn pill-btn py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold text-slate-300 hover:text-white text-center">
+            Pentatónicas
+          </button>
+          <button type="button" data-mode="detector" class="mode-btn pill-btn py-2.5 px-2 rounded-lg text-xs sm:text-sm font-bold text-slate-300 hover:text-white text-center">
+            Detector Libre
+          </button>
+        </div>
+
+        <div id="modeHelperText" class="px-2 py-1 text-xs text-slate-400 flex items-center justify-between gap-2">
+          <span>Explora posiciones, inversiones, Drop 2/3, tríadas y Box Chords en todo el mástil.</span>
+          <button id="btnTransferToDetector" type="button" class="pill-btn shrink-0 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 font-semibold text-[11px]">
+            Editar notas libres ✎
+          </button>
+        </div>
+      </div>
+
+      <!-- ALWAYS-ON LIVE CHORD / HARMONY READOUT & PLAYBACK -->
+      <div class="xl:col-span-7 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-800/95 border border-slate-700/80 rounded-2xl p-3.5 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg relative overflow-hidden">
+        <div class="space-y-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="liveStatusTag" class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              Acorde Activo
+            </span>
+            <span id="liveSubBadge" class="text-xs text-slate-400 font-medium truncate">
+              Estado Fundamental · Box Chord
+            </span>
+          </div>
+          <div class="flex items-baseline gap-3 flex-wrap">
+            <h2 id="liveMainTitle" class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mono">
+              C
+            </h2>
+            <span id="liveFullName" class="text-sm sm:text-base font-semibold text-amber-300">
+              C Mayor
+            </span>
+          </div>
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-300">
+            <span>Notas: <strong id="liveNotesList" class="mono text-white">C · E · G</strong></span>
+            <span class="text-slate-600">|</span>
+            <span>Fórmula: <strong id="liveFormulaList" class="mono text-emerald-300">1 · 3 · 5</strong></span>
+            <span id="liveAltWrap" class="hidden text-slate-400">
+              | También: <span id="liveAltNames" class="mono text-violet-300"></span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Playback Action Buttons -->
+        <div class="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
+          <button id="btnPlayStrum" type="button" class="pill-btn flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-amber-500/20 flex items-center justify-center gap-1.5">
+            <span>▶</span>
+            <span id="playPrimaryLabel">Rasguear</span>
+          </button>
+          <button id="btnPlayArpeggio" type="button" class="pill-btn flex-1 sm:flex-initial px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-100 font-semibold text-xs sm:text-sm flex items-center justify-center gap-1.5">
+            <span>🎶</span>
+            <span id="playSecondaryLabel">Arpegiar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC CONTROL PANELS PER MODE -->
+
+    <!-- 1. CHORDS CONTROL PANEL -->
+    <section id="panelChords" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-3.5 shadow-xl">
+      <!-- Root Pitch Selector -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">1. Tónica del Acorde</span>
+          <span id="chordCountSummary" class="text-xs font-semibold text-amber-400 mono"></span>
+        </div>
+        <div id="chordRootGrid" class="grid grid-cols-6 sm:grid-cols-12 gap-1.5"></div>
+      </div>
+
+      <!-- Chord Quality Categories + Chips -->
+      <div class="space-y-2">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">2. Tipo y Extensión del Acorde</span>
+          <div class="flex flex-wrap gap-1" id="qualityGroupTabs">
+            <button type="button" data-qgroup="all" class="qgroup-btn pill-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-700 text-white">Todos</button>
+            <button type="button" data-qgroup="triads" class="qgroup-btn pill-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-white">Tríadas / Add / Sus</button>
+            <button type="button" data-qgroup="sevenths" class="qgroup-btn pill-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-white">6ª y 7ª</button>
+            <button type="button" data-qgroup="extended" class="qgroup-btn pill-btn px-2.5 py-1 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-white">Alterados y 9ª</button>
+          </div>
+        </div>
+        <div id="chordQualityGrid" class="flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <!-- Voicing Structure, String Set & Inversion Filters -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 pt-1 border-t border-slate-800/90">
+        <!-- Voicing Structure (Todos / Box Chords / Solo Tríadas / Spread / Drop 2 / Drop 3) -->
+        <div class="lg:col-span-5 space-y-1.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">3. Estructura / Voicing</span>
+          <div id="voicingTypeGrid" class="flex flex-wrap gap-1.5">
+            <button type="button" data-vtype="all" class="vtype-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950">Todos</button>
+            <button type="button" data-vtype="box" class="vtype-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Box Chords (CAGED)</button>
+            <button type="button" data-vtype="triad" class="vtype-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Solo Tríadas</button>
+            <button type="button" data-vtype="spread" class="vtype-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Tríadas Abiertas</button>
+            <button type="button" data-vtype="drop2" class="vtype-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Drop 2</button>
+            <button type="button" data-vtype="drop3" class="vtype-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Drop 3</button>
+          </div>
+        </div>
+
+        <!-- String Set Selector -->
+        <div class="lg:col-span-4 space-y-1.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">4. Juego de Cuerdas</span>
+          <div id="stringSetGrid" class="flex flex-wrap gap-1.5">
+            <button type="button" data-strset="all" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 text-slate-950">Todas</button>
+            <button type="button" data-strset="1-2-3" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 mono">1-2-3</button>
+            <button type="button" data-strset="2-3-4" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 mono">2-3-4</button>
+            <button type="button" data-strset="3-4-5" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 mono">3-4-5</button>
+            <button type="button" data-strset="4-5-6" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 mono">4-5-6</button>
+            <button type="button" data-strset="1-2-3-4" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 mono">1-2-3-4</button>
+            <button type="button" data-strset="2-3-4-5" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 mono">2-3-4-5</button>
+            <button type="button" data-strset="3-4-5-6" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 mono">3-4-5-6</button>
+            <button type="button" data-strset="1-2-3-5" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 mono" title="Drop 3 agudo (salta 4ª cuerda)">1-2-3-5</button>
+            <button type="button" data-strset="2-3-4-6" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700 mono" title="Drop 3 grave (salta 5ª cuerda)">2-3-4-6</button>
+            <button type="button" data-strset="box" class="strset-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">5–6 Cuerdas</button>
+          </div>
+        </div>
+
+        <!-- Inversion Filter -->
+        <div class="lg:col-span-3 space-y-1.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">5. Inversión (Bajo)</span>
+          <div id="inversionGrid" class="flex flex-wrap gap-1.5">
+            <button type="button" data-inv="all" class="inv-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500 text-slate-950">Todas</button>
+            <button type="button" data-inv="0" class="inv-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">Fund.</button>
+            <button type="button" data-inv="1" class="inv-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">1ª Inv</button>
+            <button type="button" data-inv="2" class="inv-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">2ª Inv</button>
+            <button type="button" data-inv="3" class="inv-btn pill-btn px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">3ª Inv</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voicing Position Carousel Navigator -->
+      <div class="pt-2 border-t border-slate-800/90 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Posiciones Jugables en el Mástil</span>
+            <span id="voicingPositionCounter" class="px-2 py-0.5 rounded-full bg-slate-800 text-amber-300 text-xs font-bold mono">1 / 1</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button id="btnPrevVoicing" type="button" class="pill-btn px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200">
+              ◀ Anterior
+            </button>
+            <button id="btnNextVoicing" type="button" class="pill-btn px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200">
+              Siguiente ▶
+            </button>
+          </div>
+        </div>
+        <div id="voicingCardsStrip" class="flex gap-2 overflow-x-auto custom-scroll pb-1.5"></div>
+      </div>
+    </section>
+
+    <!-- 2. PENTATONIC SCALES CONTROL PANEL -->
+    <section id="panelScales" class="hidden bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-3.5 shadow-xl">
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400">1. Tonalidad de la Escala</span>
+          <span id="scaleRelativeInfo" class="text-xs font-semibold text-emerald-400"></span>
+        </div>
+        <div id="scaleRootGrid" class="grid grid-cols-6 sm:grid-cols-12 gap-1.5"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 pt-2 border-t border-slate-800/90">
+        <!-- Major vs Minor Pentatonic -->
+        <div class="md:col-span-4 space-y-1.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">2. Tipo de Pentatónica</span>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" data-scaletype="minor" class="scaletype-btn pill-btn flex-1 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-amber-500 text-slate-950 shadow">
+              Pentatónica Menor
+            </button>
+            <button type="button" data-scaletype="major" class="scaletype-btn pill-btn flex-1 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-800 text-slate-300 border border-slate-700">
+              Pentatónica Mayor
+            </button>
+          </div>
+        </div>
+
+        <!-- 5 CAGED Boxes + Full Neck -->
+        <div class="md:col-span-5 space-y-1.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">3. Posición / Caja en el Mástil</span>
+          <div id="scaleBoxGrid" class="flex flex-wrap gap-1.5">
+            <button type="button" data-box="all" class="scalebox-btn pill-btn px-2.5 py-2 rounded-xl text-xs font-bold bg-sky-500 text-slate-950">Mástil Completo</button>
+            <button type="button" data-box="0" class="scalebox-btn pill-btn px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Caja 1</button>
+            <button type="button" data-box="1" class="scalebox-btn pill-btn px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Caja 2</button>
+            <button type="button" data-box="2" class="scalebox-btn pill-btn px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Caja 3</button>
+            <button type="button" data-box="3" class="scalebox-btn pill-btn px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Caja 4</button>
+            <button type="button" data-box="4" class="scalebox-btn pill-btn px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">Caja 5</button>
+          </div>
+        </div>
+
+        <!-- Register / Blue Note Options -->
+        <div class="md:col-span-3 space-y-1.5">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">4. Opciones de Caja</span>
+          <div class="flex flex-wrap gap-1.5">
+            <button id="btnToggleBlueNote" type="button" class="pill-btn px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 text-cyan-300 border border-slate-700 flex items-center gap-1.5">
+              <span>+ Blue Note (♭5)</span>
+            </button>
+            <button id="btnScaleOctave" type="button" class="pill-btn px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 border border-slate-700" title="Cambiar entre caja principal, octava aguda o ambas">
+              Registro: Ambas Octavas
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. FREE CHORD DETECTOR CONTROL PANEL -->
+    <section id="panelDetector" class="hidden bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 sm:p-4 space-y-3 shadow-xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="space-y-1">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Detector de Acordes en Todo Momento
+          </h3>
+          <p class="text-xs text-slate-400">
+            Toca cualquier traste en la guitarra o cualquier tecla en el piano — incluso al azar — y el motor armónico calculará al instante el acorde exacto, su inversión y otras lecturas posibles.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 shrink-0">
+          <button id="btnGuitarPolyMode" type="button" class="pill-btn px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200">
+            Guitarra: 1 nota por cuerda
+          </button>
+          <button id="btnRandomNotes" type="button" class="pill-btn px-3 py-2 rounded-xl bg-violet-600/90 hover:bg-violet-500 text-white text-xs font-bold shadow">
+            🎲 Notas al Azar
+          </button>
+          <button id="btnClearDetector" type="button" class="pill-btn px-3 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/35 border border-rose-500/40 text-rose-300 text-xs font-bold">
+            ✕ Limpiar Todo
+          </button>
+        </div>
+      </div>
+
+      <!-- Detailed Candidate Interpretations Strip -->
+      <div id="detectorCandidatesRow" class="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80 text-xs">
+        <span class="text-slate-400 font-semibold">Lecturas armónicas detectadas:</span>
+        <div id="detectorCandidatesList" class="flex flex-wrap gap-1.5"></div>
+      </div>
+    </section>
+
+    <!-- GUITAR FRETBOARD SECTION -->
+    <section id="guitarSection" class="bg-slate-900/95 border border-slate-800 rounded-2xl p-3 sm:p-4 space-y-3 shadow-2xl">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+            <span>🎸 Diapasón de Guitarra</span>
+            <span class="text-slate-500 font-normal">(22 Trastes · E A D G B e)</span>
+          </h3>
+          <!-- Color Legend -->
+          <div class="flex items-center gap-2.5 text-[11px] text-slate-300 bg-slate-950/80 px-2.5 py-1 rounded-lg border border-slate-800">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>Tónica (1)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>3ª</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>5ª</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span>7ª / Ext.</span>
+          </div>
+        </div>
+
+        <!-- Orientation & Auto-Center Controls (Essential for Mobile + PC UX) -->
+        <div class="flex items-center gap-1.5">
+          <button id="btnCenterPosition" type="button" class="pill-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-amber-300">
+            🎯 Centrar Posición
+          </button>
+          <button id="btnNeckOrientation" type="button" class="pill-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200">
+            ↕ Vista Vertical (Móvil)
+          </button>
+        </div>
+      </div>
+
+      <!-- Horizontal Fretboard Container -->
+      <div id="fretboardHorizontalWrap" class="overflow-x-auto custom-scroll pb-2 select-none">
+        <div id="fretboardHorizontalInner" class="min-w-[1060px] w-full"></div>
+      </div>
+
+      <!-- Vertical Fretboard Container (Hidden by default; awesome on phones) -->
+      <div id="fretboardVerticalWrap" class="hidden max-h-[540px] overflow-y-auto custom-scroll pr-1 select-none flex justify-center">
+        <div id="fretboardVerticalInner" class="w-full max-w-[390px]"></div>
+      </div>
+    </section>
+
+    <!-- PIANO KEYBOARD SECTION -->
+    <section id="pianoSection" class="hidden bg-slate-900/95 border border-slate-800 rounded-2xl p-3 sm:p-4 space-y-3 shadow-2xl">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+          <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300">
+            🎹 Teclado de Piano Sincronizado
+          </h3>
+          <span id="pianoRangeLabel" class="text-xs text-slate-400 mono">Rango enfocado (3 octavas)</span>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button id="btnPianoRangeToggle" type="button" class="pill-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-200">
+            ↔ Ver Rango Completo (E2–D6)
+          </button>
+        </div>
+      </div>
+
+      <div id="pianoScrollWrap" class="overflow-x-auto custom-scroll pb-2 select-none">
+        <div id="pianoKeyboardContainer" class="mx-auto"></div>
+      </div>
+    </section>
+
+    <!-- ATAJOS DE TECLADO EN ESCRITORIO E INSTALACIÓN RÁPIDA -->
+    <footer class="bg-slate-900/80 border border-slate-800 rounded-2xl px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+      <div class="hidden md:flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span class="font-semibold text-slate-300">Atajos (Mac / Windows):</span>
+        <span><strong class="mono text-amber-300">Espacio</strong> Rasguear</span>
+        <span>·</span>
+        <span><strong class="mono text-amber-300">A</strong> Arpegiar</span>
+        <span>·</span>
+        <span><strong class="mono text-amber-300">← / →</strong> Posición</span>
+        <span>·</span>
+        <span><strong class="mono text-amber-300">1 / 2 / 3</strong> Modos</span>
+        <span>·</span>
+        <span><strong class="mono text-amber-300">G / P / B</strong> Instrumento</span>
+        <span>·</span>
+        <span><strong class="mono text-amber-300">N / I / D</strong> Etiquetas</span>
+      </div>
+      <div class="md:hidden text-[11px] text-slate-400">
+        Gira tu teléfono en horizontal para ver los 22 trastes o alterna a Vista Vertical.
+      </div>
+      <button id="btnInstallAppPrompt" type="button" class="hidden pill-btn px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs">
+        📲 Instalar App
+      </button>
+    </footer>
+
+  </div>
+
+  <script defer src="./js/core/constants.js"></script>
+  <script defer src="./js/core/theory.js"></script>
+  <script defer src="./js/core/voicings.js"></script>
+  <script defer src="./js/core/scales.js"></script>
+  <script defer src="./js/core/detector.js"></script>
+  <script defer src="./js/audio/synth-engine.js"></script>
+  <script defer src="./js/state/store.js"></script>
+  <script defer src="./js/ui/fretboard-view.js"></script>
+  <script defer src="./js/ui/piano-view.js"></script>
+  <script defer src="./js/ui/controls-view.js"></script>
+  <script defer src="./js/platform/platform-bridge.js"></script>
+  <script defer src="./js/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>

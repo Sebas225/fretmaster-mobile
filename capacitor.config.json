@@ -1,0 +1,19 @@
+{
+  "appId": "com.fretmaster.studio",
+  "appName": "FretMaster Studio",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "backgroundColor": "#090d16",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1100,
+      "launchAutoHide": true,
+      "backgroundColor": "#090d16",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#090d16"
+    }
+  }
+}
